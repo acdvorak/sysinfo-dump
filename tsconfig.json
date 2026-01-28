@@ -3,8 +3,8 @@
     "incremental": true,
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
@@ -21,6 +21,7 @@
     "sourceMap": true,
     "jsx": "preserve",
     "types": ["node"],
+    "outDir": "out/",
     "tsBuildInfoFile": ".tsbuildcache/src.tsbuildinfo",
   },
   "include": [

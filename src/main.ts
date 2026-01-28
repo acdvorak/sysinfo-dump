@@ -1,9 +1,12 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
-import { toLocalIsoStringSafe } from './datetime';
-import type { SysInfoChassisData } from './sysinfo-api';
-import { getDynamicSysInfo, getStaticSysInfo } from './sysinfo-api';
+import { app, screen } from 'electron';
+
+import { toLocalIsoStringSafe } from './datetime.js';
+import { mapAndSortDisplays } from './sort-hardware.js';
+import type { SysInfoChassisData } from './sysinfo-api.js';
+import { getDynamicSysInfo, getStaticSysInfo } from './sysinfo-api.js';
 
 async function main(): Promise<void> {
   const timestamp = toLocalIsoStringSafe(new Date());
@@ -11,7 +14,14 @@ async function main(): Promise<void> {
   const [staticSysInfo, dynamicSysInfo] = await Promise.all([
     getStaticSysInfo(),
     getDynamicSysInfo(),
+    app.whenReady(),
   ]);
+
+  const primaryDisplayId = screen.getPrimaryDisplay().id;
+  const electronDisplays = mapAndSortDisplays(
+    screen.getAllDisplays(),
+    primaryDisplayId,
+  );
 
   const { distro: distroName } = staticSysInfo.osInfo;
   const { type: chassisName } = staticSysInfo.chassis;
@@ -37,6 +47,7 @@ async function main(): Promise<void> {
       {
         staticSysInfo,
         dynamicSysInfo,
+        electronDisplays,
       },
       null,
       2,
@@ -45,6 +56,8 @@ async function main(): Promise<void> {
 
   console.log();
   console.log(jsonFilePath);
+
+  app.quit();
 }
 
 void main();

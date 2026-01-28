@@ -1,16 +1,19 @@
 # System Information Dumper
 
 CLI tool that dumps the output of the
-[`systeminformation`](https://systeminformation.io/) package to a JSON file.
+[`systeminformation` library](https://systeminformation.io/) and
+[Electron's `screen.getAllDisplays()`](https://www.electronjs.org/docs/latest/api/screen#screengetalldisplays)
+to a JSON file.
 
 That's it.
 
 ## Requirements
 
-1. Node.js v22 or newer
-2. Any OS / hardware supported by
-   [`systeminformation`](https://systeminformation.io/) (Windows, macOS, Linux,
-   Raspberry Pi, etc.)
+1. **Node.js v22** or newer
+2. **Windows, macOS, Linux, Raspberry Pi**, etc. \
+   I.e., any hardware / OS that is supported by both:
+   - [`systeminformation`](https://systeminformation.io/)
+   - [Electron](https://www.electronjs.org/) (Chromium)
 
 ## Usage
 

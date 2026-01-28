@@ -7,3 +7,5 @@ out/
 .tsbuildcache/
 
 sysinfo*.json
+
+/dumps
