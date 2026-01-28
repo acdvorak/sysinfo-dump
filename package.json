@@ -1,0 +1,50 @@
+{
+  "name": "sysinfo-dump",
+  "productName": "System Information Dumper",
+  "description": "Write `systeminformation` output to a JSON file.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Andrew C. Dvorak",
+    "email": "andy@andydvorak.net",
+    "url": "https://github.com/acdvorak"
+  },
+  "homepage": "https://github.com/acdvorak/sysinfo-dump",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "clean": "rimraf dist/ out/ .tsbuildcache/ .eslintcache sysinfo*.json",
+    "format": "npm-run-all \"format:prettier\" \"format:eslint\" \"format:prettier\"",
+    "format:prettier": "prettier --write .",
+    "format:eslint": "eslint --cache --fix .",
+    "lint": "eslint --cache .",
+    "typecheck": "tsc --build --noEmit tsconfig.json",
+    "start": "tsx src/main.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "systeminformation": "^5.30.6"
+  },
+  "devDependencies": {
+    "@eslint/core": "^1.0.1",
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^22.19.7",
+    "@typescript-eslint/typescript-estree": "^8.54.0",
+    "@typescript-eslint/utils": "^8.54.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-context": "^0.2.0",
+    "eslint-plugin-command": "^3.4.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "jiti": "^2.6.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.8.1",
+    "prettier-plugin-curly": "^0.4.1",
+    "rimraf": "^6.1.2",
+    "tsx": "^4.21.0",
+    "type-fest": "^5.4.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0"
+  }
+}
