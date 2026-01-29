@@ -2,6 +2,8 @@ import type { Systeminformation as SI } from 'systeminformation';
 import * as sysinfo from 'systeminformation';
 import type { LiteralUnion, SetOptional } from 'type-fest';
 
+import { isTruthy } from './truthy';
+
 const api = sysinfo as SysInfoApi;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -362,6 +364,62 @@ export type SysInfoReturnType<K extends SysInfoKey> =
             ? SysInfoChassisData
             : Awaited<ReturnType<SysInfoApi[K]>>;
 
+type VHostFull = Exclude<SysInfoSystemData['virtualHost'], undefined>;
+type VHostNorm = TitleToSnakeCase<VHostFull>;
+
+function sniffVirtualHost(sys: SysInfoSystemData): VHostFull | undefined {
+  function normalize<V extends string>(vhost: V): TitleToSnakeCase<V> {
+    return vhost.replace(/\W+/g, '_').toLowerCase() as TitleToSnakeCase<V>;
+  }
+
+  const namesRaw = [
+    'bochs',
+    'Hyper-V',
+    'KVM',
+    'Parallels',
+    'QEMU',
+    'Virtual PC',
+    'VirtualBox',
+    'VMware',
+    'Xen',
+  ] as const satisfies VHostFull[];
+
+  const namesNorm: VHostNorm[] = namesRaw.map(normalize);
+
+  const fieldsRaw = [sys.manufacturer, sys.model].filter(isTruthy);
+  const fieldsNorm = fieldsRaw.map(normalize);
+
+  let i = 0;
+  for (i = 0; i < namesRaw.length; i++) {
+    const knownRaw = namesRaw[i];
+    const knownNorm = namesNorm[i];
+
+    // Make the compiler happy
+    if (!knownRaw || !knownNorm) {
+      continue;
+    }
+
+    if (
+      fieldsNorm.some((fieldNorm) => {
+        return (
+          new RegExp(`\\b${knownNorm}\\b`).test(fieldNorm) ||
+          new RegExp(`\\b${knownNorm.replaceAll('_', '')}\\b`).test(
+            fieldNorm,
+          ) ||
+          fieldNorm.startsWith(knownNorm) ||
+          fieldNorm
+            .replaceAll('_', '')
+            .startsWith(knownNorm.replaceAll('_', ''))
+        );
+      })
+    ) {
+      return knownRaw;
+    }
+  }
+
+  return undefined;
+}
+
 export async function getOneSysInfo<K extends SysInfoKey>(
   key: K,
 ): Promise<SysInfoReturnType<K>> {
@@ -369,6 +427,21 @@ export async function getOneSysInfo<K extends SysInfoKey>(
   const promise = api[key]() as Promise<SysInfoReturnType<K>>;
   const result = await promise;
   console.log(`✅ Got ${key}!`);
+
+  if (key === 'system') {
+    const sys = result as SysInfoSystemData;
+
+    if (!sys.virtualHost) {
+      const foundName: VHostFull | undefined = sniffVirtualHost(sys);
+      if (foundName) {
+        sys.virtualHost = foundName;
+        sys.virtual = true;
+      }
+    }
+
+    return sys as SysInfoReturnType<K>;
+  }
+
   return result;
 }
 
