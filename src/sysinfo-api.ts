@@ -75,7 +75,7 @@ export interface SysInfoSystemData extends SI.SystemData {
 
   sku: LiteralUnion<'-', string>;
 
-  type: 'Desktop' | 'Notebook' | 'Other' | 'Tower';
+  type?: 'Desktop' | 'Notebook' | 'Other' | 'Tower';
 
   version: LiteralUnion<'' | SysInfoRaspberryPiData['revision'], string>;
 

@@ -5,7 +5,6 @@ import { app, screen } from 'electron';
 
 import { toLocalIsoStringSafe } from './datetime.js';
 import { mapAndSortDisplays } from './sort-hardware.js';
-import type { SysInfoSystemData } from './sysinfo-api.js';
 import { getDynamicSysInfo, getStaticSysInfo } from './sysinfo-api.js';
 
 async function main(): Promise<void> {
@@ -23,8 +22,8 @@ async function main(): Promise<void> {
     primaryDisplayId,
   );
 
-  const { distro: distroName } = staticSysInfo.osInfo;
-  const { virtual, virtualHost, type: systemType } = staticSysInfo.system;
+  const { distro: distroName, logofile } = staticSysInfo.osInfo;
+  const { virtualHost, type: systemType } = staticSysInfo.system;
 
   /** @example "macOS" -> "macos" */
   const distroType = distroName
@@ -33,13 +32,13 @@ async function main(): Promise<void> {
 
   /** @example "Sealed-Case PC" -> "sealed_case_pc" */
   const chassisType = (
-    systemType === 'Other' && virtual && virtualHost ? virtualHost : systemType
+    virtualHost || // "Hyper-V" | "KVM" | "Parallels" | "QEMU" | "Virtual PC" | "VirtualBox" | "VMware" | "Xen" | undefined
+    systemType || // "Desktop" | "Notebook" | "Other" | "Tower" | undefined
+    logofile || // "apple" | "windows" | "debian"
+    'unknown'
   )
     .replace(/\W+/g, '_')
-    .toLowerCase() as TitleToSnakeCase<
-    | SysInfoSystemData['type']
-    | Exclude<SysInfoSystemData['virtualHost'], undefined>
-  >;
+    .toLowerCase();
 
   const jsonFilePath = path.join(
     process.cwd(),
