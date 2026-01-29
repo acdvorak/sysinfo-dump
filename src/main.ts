@@ -5,7 +5,7 @@ import { app, screen } from 'electron';
 
 import { toLocalIsoStringSafe } from './datetime.js';
 import { mapAndSortDisplays } from './sort-hardware.js';
-import type { SysInfoChassisData } from './sysinfo-api.js';
+import type { SysInfoSystemData } from './sysinfo-api.js';
 import { getDynamicSysInfo, getStaticSysInfo } from './sysinfo-api.js';
 
 async function main(): Promise<void> {
@@ -24,7 +24,7 @@ async function main(): Promise<void> {
   );
 
   const { distro: distroName } = staticSysInfo.osInfo;
-  const { type: chassisName } = staticSysInfo.chassis;
+  const { virtual, virtualHost, type: systemType } = staticSysInfo.system;
 
   /** @example "macOS" -> "macos" */
   const distroType = distroName
@@ -32,9 +32,14 @@ async function main(): Promise<void> {
     .toLowerCase() as Lowercase<string>;
 
   /** @example "Sealed-Case PC" -> "sealed_case_pc" */
-  const chassisType = chassisName
+  const chassisType = (
+    systemType === 'Other' && virtual && virtualHost ? virtualHost : systemType
+  )
     .replace(/\W+/g, '_')
-    .toLowerCase() as TitleToSnakeCase<SysInfoChassisData['type']>;
+    .toLowerCase() as TitleToSnakeCase<
+    | SysInfoSystemData['type']
+    | Exclude<SysInfoSystemData['virtualHost'], undefined>
+  >;
 
   const jsonFilePath = path.join(
     process.cwd(),
