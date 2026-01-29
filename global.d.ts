@@ -46,8 +46,12 @@ declare global {
       ? `${First}_${PeriodToUnder<Rest>}`
       : S;
 
-  declare type TitleToSnakeCase<S extends string> = PeriodToUnder<
-    SpaceToUnder<HyphenToUnder<Lowercase<S>>>
+  type SlashToUnder<S extends string> = S extends `${infer First}/${infer Rest}`
+    ? `${First}_${SlashToUnder<Rest>}`
+    : S;
+
+  declare type TitleToSnakeCase<S extends string> = SlashToUnder<
+    PeriodToUnder<SpaceToUnder<HyphenToUnder<Lowercase<S>>>>
   >;
 
   type X = TitleToSnakeCase<'.Hello. World.'>;

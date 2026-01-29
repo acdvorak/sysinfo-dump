@@ -23,25 +23,29 @@ async function main(): Promise<void> {
   );
 
   const { distro: distroName, logofile } = staticSysInfo.osInfo;
-  const { virtualHost, type: systemType } = staticSysInfo.system;
+  const { virtualHost, type: systemType, raspberry } = staticSysInfo.system;
 
   /** @example "macOS" -> "macos" */
   const osName = (distroName === 'macOS' ? distroName : logofile)
     .replace(/\W+/g, '_')
     .toLowerCase() as Lowercase<string>;
 
+  const rpiType = raspberry?.type;
+
   /** @example "Sealed-Case PC" -> "sealed_case_pc" */
-  const chassisType = (
+  const chassisTypeFull =
     virtualHost || // "Hyper-V" | "KVM" | "Parallels" | "QEMU" | "Virtual PC" | "VirtualBox" | "VMware" | "Xen" | undefined
     systemType || // "Desktop" | "Notebook" | "Other" | "Tower" | undefined
-    'unknown'
-  )
-    .replace(/\W+/g, '_')
-    .toLowerCase() as Lowercase<string>;
+    (rpiType ? (`RPi ${rpiType}` as const) : null) ||
+    ('Unknown' as const);
+
+  const chassisTypeSafe = chassisTypeFull
+    .replace(/[^\w+]+/g, '_')
+    .toLowerCase() as TitleToSnakeCase<typeof chassisTypeFull>;
 
   const jsonFilePath = path.join(
     process.cwd(),
-    `sysinfo-${osName}-${chassisType}-${timestamp}.json`,
+    `sysinfo-${osName}-${chassisTypeSafe}-${timestamp}.json`,
   );
 
   await fs.writeFile(
