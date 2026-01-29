@@ -26,7 +26,7 @@ async function main(): Promise<void> {
   const { virtualHost, type: systemType } = staticSysInfo.system;
 
   /** @example "macOS" -> "macos" */
-  const distroType = distroName
+  const osName = (distroName === 'macOS' ? distroName : logofile)
     .replace(/\W+/g, '_')
     .toLowerCase() as Lowercase<string>;
 
@@ -34,15 +34,14 @@ async function main(): Promise<void> {
   const chassisType = (
     virtualHost || // "Hyper-V" | "KVM" | "Parallels" | "QEMU" | "Virtual PC" | "VirtualBox" | "VMware" | "Xen" | undefined
     systemType || // "Desktop" | "Notebook" | "Other" | "Tower" | undefined
-    logofile || // "apple" | "windows" | "debian"
     'unknown'
   )
     .replace(/\W+/g, '_')
-    .toLowerCase();
+    .toLowerCase() as Lowercase<string>;
 
   const jsonFilePath = path.join(
     process.cwd(),
-    `sysinfo-${distroType}-${chassisType}-${timestamp}.json`,
+    `sysinfo-${osName}-${chassisType}-${timestamp}.json`,
   );
 
   await fs.writeFile(
